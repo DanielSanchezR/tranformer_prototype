@@ -1,39 +1,34 @@
-# models/test_bert.py
-from transformers import BertTokenizer, BertForQuestionAnswering
-import torch
+from transformers import T5ForConditionalGeneration, T5Tokenizer
 
-# Cargar el modelo y el tokenizador ajustados
-model_name = "models/bert-finetuned-university-qa"
-model = BertForQuestionAnswering.from_pretrained(model_name)
-tokenizer = BertTokenizer.from_pretrained(model_name)
+# Cargar el modelo y el tokenizador fine-tuneados
+model_name = "./fine_tuned_model"
+model = T5ForConditionalGeneration.from_pretrained(model_name)
+tokenizer = T5Tokenizer.from_pretrained(model_name)
 
-def answer_question(question, context):
-    # Tokenizar las entradas
-    inputs = tokenizer.encode_plus(question, context, add_special_tokens=True, return_tensors="pt")
-    input_ids = inputs["input_ids"]
-    token_type_ids = inputs["token_type_ids"]
+def answer_question(question, context, max_length=100):
+    input_text = f"question: {question} context: {context}"
+    
+    # Tokenizar la entrada
+    inputs = tokenizer(input_text, return_tensors="pt")
 
-    # Obtener las salidas del modelo
-    with torch.no_grad():
-        outputs = model(input_ids, token_type_ids=token_type_ids)
-        start_scores = outputs.start_logits
-        end_scores = outputs.end_logits
+    # Generar respuesta a partir del input
+    outputs = model.generate(
+        inputs['input_ids'], 
+        max_length=max_length, 
+        num_beams=4, 
+        early_stopping=True
+    )
 
-    # Obtener las posiciones de inicio y fin de la respuesta
-    start_index = torch.argmax(start_scores)
-    end_index = torch.argmax(end_scores) + 1
-
-    # Decodificar la respuesta
-    answer = tokenizer.convert_tokens_to_string(tokenizer.convert_ids_to_tokens(input_ids[0][start_index:end_index]))
+    # Decodificar la respuesta generada
+    answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
     return answer
 
-# Ejemplo de uso
+# Ejemplo de uso (No necesario si se runnea el app.py)
 if __name__ == "__main__":
-    context = "La universidad está ubicada en el centro de la ciudad. Las inscripciones son en marzo y septiembre. Ofrecemos maestrías en Administración y Ciencias de la Computación. Sí, la universidad ofrece becas por excelencia académica y por necesidades económicas."
-    
     while True:
+        context = input("Introduce un contexto: ")
         question = input("Introduce una pregunta: ")
         if question.lower() in ['salir', 'exit', 'quit']:
             break
         answer = answer_question(question, context)
-        print("Respuesta:", answer)
+        print("Respuesta generada:", answer)

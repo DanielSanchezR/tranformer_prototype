@@ -1,0 +1,19 @@
+{
+  "data": [
+      {
+          "context": "Paris is the capital of France.",
+          "question": "What is the capital of France?",
+          "answers": ["Paris"]
+      },
+      {
+          "context": "'1984' was written by George Orwell.",
+          "question": "Who wrote '1984'?",
+          "answers": ["George Orwell"]
+      },
+      {
+          "context": "Water boils at 100 degrees Celsius.",
+          "question": "What is the boiling point of water?",
+          "answers": ["100 degrees Celsius"]
+      }
+  ]
+}

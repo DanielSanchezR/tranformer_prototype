@@ -4,22 +4,28 @@ from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
 from models.GPT_2 import generate_text
+from models.BERT import answer_question_BERT
+from models.T5_AVI import answer_question
 
 # Función para actualizar la imagen, la descripción y el placeholder según la opción seleccionada
 def update_image_description_placeholder(*args):
     option = option_var.get()
     if option == "BERT":
         image_path = "assets/BERT.png"
-        description = "BERT es un modelo creado por Google que ha revolucionado el procesamiento del lenguaje natural..."
+        description = "Modelo de lenguaje basado en transformadores que analiza el contexto en ambas direcciones de una frase. Es ideal para tareas como clasificación de texto, etiquetado de entidades, y respuesta a preguntas, logrando resultados sobresalientes en comprensión de lenguaje natural."
         placeholder = "¿Cual es la capital de Francia?"
     elif option == "DistilBERT":
         image_path = "assets/DistilBERT.png"
-        description = "DistilBERT es una versión más ligera de BERT, diseñada para ser más eficiente en términos de velocidad y recursos..."
+        description = "versión compacta y eficiente de BERT que reduce el tamaño y el tiempo de inferencia sin sacrificar mucho rendimiento. Es capaz de realizar tareas similares a BERT, como clasificación de texto y análisis de sentimientos, siendo ideal para aplicaciones con limitaciones de recursos."
         placeholder = "Pregunta de ejemplo..."
     elif option == "OpenAI":
-        image_path = "assets/OpenAI.png"
-        description = "El modelo de OpenAI ha sido desarrollado para tareas avanzadas de generación de texto y comprensión del lenguaje..."
+        image_path = "assets/ChatGPT.png"
+        description = "Modelo generativo autoregresivo que predice el próximo token en una secuencia, lo que le permite generar texto coherente y creativo. Se utiliza para tareas como generación de historias, chatbots, y completado de texto."
         placeholder = "Había una vez..."
+    elif option == "T5Tunned":
+        image_path = "assets/AVI.png"
+        description = "Modelo de lenguaje que convierte todas las tareas de procesamiento de lenguaje en un problema de texto a texto. Puede resolver una amplia gama de tareas como traducción, resumen, y clasificación, manteniendo flexibilidad y eficacia en múltiples dominios; esté en especifico le fue ingresado un dataset para funcionar"
+        placeholder = "Cual es la capital de Francia?"
     else:
         image_path = "assets/OpenAI.png"
         description = "Algo salió mal."
@@ -27,7 +33,7 @@ def update_image_description_placeholder(*args):
 
     # Actualizar la imagen
     image = Image.open(image_path)
-    image = image.resize((200, 200))
+    image = image.resize((400, 200))
     photo = ImageTk.PhotoImage(image)
     image_label.config(image=photo)
     image_label.image = photo
@@ -56,14 +62,17 @@ def on_focus_out(event, placeholder):
 def open_new_window():
     option = option_var.get()
     prompt = prompt_var.get()
-    if option == "OpenAI":
+    if option == "BERT":
+        generated_text = answer_question_BERT(prompt, "La capital de Francia es Paris")
+        messagebox.showinfo("Respuesta", generated_text)
+    elif option == "DistilBERT":
         generated_text = generate_text(prompt)
         messagebox.showinfo("Respuesta", generated_text)
-    elif option == "BERT":
+    elif option == "OpenAI":
         generated_text = generate_text(prompt)
         messagebox.showinfo("Respuesta", generated_text)
-    elif option == "ASASA":
-        generated_text = generate_text(prompt)
+    elif option == "T5Tunned":
+        generated_text = answer_question(prompt, "La capital de Francia es Paris")
         messagebox.showinfo("Respuesta", generated_text)
     else:
         messagebox.showerror("Error", "El modelo seleccionado no existe o ha fallado")
@@ -104,7 +113,7 @@ option_var = tk.StringVar()
 option_var.trace("w", update_image_description_placeholder)
 
 # Select (Combobox) con diferentes opciones
-options = ["BERT", "DistilBERT", "OpenAI"]
+options = ["BERT", "DistilBERT", "OpenAI", "T5Tunned"]
 combobox = ttk.Combobox(frame, state="readonly", textvariable=option_var, values=options)
 combobox.current(0)
 combobox.pack(side="left", padx=10)

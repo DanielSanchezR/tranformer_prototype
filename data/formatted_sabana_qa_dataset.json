@@ -1,0 +1,10 @@
+[
+    {
+        "input": "¿Qué es la Universidad de la Sabana?",
+        "target": "La Universidad de la Sabana es una institución de educación superior en Colombia."
+    },
+    {
+        "input": "¿Cuándo se fundó la Universidad de la Sabana?",
+        "target": "Se fundó en 1979."
+    }
+]
